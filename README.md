@@ -69,9 +69,10 @@ append ``--unformatted-ids`` to the command if the program fails to scape all Id
 ## ⚙️ Configuration
 The tool requires minimal setup:
 - **Roblox Cookie (REQUIRED)**: --cookie {STRING} for your authentication token for accessing Roblox services
+- **ROBLOX API KEY (REQUIRED)**: --api-key {STRING} for the new cloud APIs we will need, for now its only used for the uploading API.
 - **Target File (REQUIRED)**: --file {NAME} required for the path of the file to scan
 - **Group id (Optional)**: Upload to a group with --group {NUM} flag
-- **Output (Optional)**: Use the --output {NAME} flag to avoid data loss
+- **Output (RECOMMENDED)**: Use the --output {NAME} flag to avoid data loss
 - **Threads (Optional)**: the --threads {NUM} flag is how many concurrent tasks need to run (default is 5)
 - **Scan additional IDs in scripts (Optional)** Use the --unformatted-ids flag to scan every big number in scripts
 
