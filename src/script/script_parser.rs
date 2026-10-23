@@ -1,6 +1,6 @@
 use crate::StudioParser;
 use rbx_dom_weak::types::Variant;
-use regex::Regex;
+use fancy_regex::Regex;
 use roboat::assetdelivery::AssetBatchResponse;
 use std::collections::HashSet;
 use tracing::info;
