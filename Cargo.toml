@@ -14,7 +14,7 @@ rbx_dom_weak = "3.0.0"
 rbx_binary = "1.0.0"
 ustr = "1.1.0"
 rbx_types = "2.0.0"
-regex = "1.11.1"
+fancy-regex = "0.19.2"
 shellexpand = "3.1.1"
 clap = { version = "4.1.13", features = ["derive"] }
 reqwest = "0.12.21"
