@@ -1,7 +1,7 @@
 use crate::StudioParser;
 use rbx_binary::from_reader;
 use rbx_types::Variant;
-use regex::Regex;
+use fancy_regex::Regex;
 use roboat::assetdelivery::AssetBatchResponse;
 use std::fs::File;
 use std::path::Path;
