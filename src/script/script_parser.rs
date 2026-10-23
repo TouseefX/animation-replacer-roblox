@@ -20,13 +20,27 @@ impl StudioParser {
     ) -> anyhow::Result<Vec<AssetBatchResponse>> {
         let script_refs = self.get_script_refs();
 
-        // This regex expression is FIND: "rbxassetid://" OR "roblox.com/asset?id=" THEN DIGITS
+        // High-performance context pattern
+        // Flags used: (?x) allows spaces/comments, (?i) makes it case-insensitive
         let pattern = if unformatted_search {
-            // Any large number (6+ digits)
-            Regex::new(r"(\d{6,})").unwrap()
+            Regex::new(r"(?xi)
+                (?:
+                    # Context 1: Function calls like playeranimation(char, 1234567) or LoadAnimation(1234567)
+                    \b[a-z0-9_]+\s*\([^)]*\b
+                    |
+                    # Context 2: Table Arrays/Dictionaries like {1234567, 891011} or id = 1234567
+                    [{,=\[]\s*
+                    |
+                    # Context 3: Standard Asset Property strings
+                    rbxassetid://|id=
+                )
+                # Capture target: matches 6 to 12 digits
+                (\d{6,12})
+                # Lookahead boundary context check
+                (?=\b|[\s,}\)]|$)
+            ").unwrap()
         } else {
-            // Asset ID formats + fallback
-            Regex::new(r"(?:rbxassetid:\/\/|roblox\.com\/asset\/\?id=)(\d{6,})").unwrap()
+            Regex::new(r"(?:rbxassetid:\/\/|roblox\.com\/asset\/\?id=)(\d{6,12})").unwrap()
         };
 
         // Collect and deduplicate all IDs from all scripts
@@ -36,14 +50,9 @@ impl StudioParser {
                 && let Some(Variant::String(source)) =
                     instance.properties.get(&Ustr::from("Source"))
             {
-                let cleaned_text: String = source
-                    .trim()
-                    .to_string()
-                    .chars()
-                    .filter(|c| !c.is_control())
-                    .collect();
-                // Iterate over all matches in the source
-                for cap in pattern.captures_iter(&cleaned_text) {
+                // FIX: Running directly on `source` instead of character filtering loop copies.
+                // .flatten() handles fancy-regex's wrapper format flawlessly.
+                for cap in pattern.captures_iter(source).flatten() {
                     if let Some(id_match) = cap.get(1)
                         && let Ok(id) = id_match.as_str().parse::<u64>()
                     {
@@ -52,6 +61,7 @@ impl StudioParser {
                 }
             }
         }
+        
         // Convert to Vec and fetch assets
         let mut id_list: Vec<u64> = all_ids.into_iter().collect();
         id_list.sort();
